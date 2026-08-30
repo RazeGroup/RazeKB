@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News & Leaks — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .news-page { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    .news-header { margin-bottom: 32px; }
+    .news-header h1 { font-size: 22px; color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px; }
+    .news-header h1 i { color: var(--accent); }
+    .news-header p { color: var(--text-muted); font-size: 13px; margin-top: 6px; }
+    .news-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .news-filters button { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-family: var(--font); transition: all 120ms; }
+    .news-filters button.active, .news-filters button:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,0,0,0.12); }
+    .news-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 8px; transition: all 120ms; display: flex; gap: 16px; align-items: flex-start; }
+    .news-item:hover { border-color: var(--text-dim); }
+    .news-item .source-badge { flex-shrink: 0; padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .news-item .source-badge.hn { background: rgba(255,102,0,0.1); color: #ff6600; }
+    .news-item .source-badge.reddit { background: rgba(255,69,0,0.1); color: #ff4500; }
+    .news-item .source-badge.breach { background: rgba(200,0,0,0.12); color: var(--accent); }
+    .news-item .source-badge.vuln { background: rgba(200,0,0,0.12); color: var(--accent); }
+    .news-item .source-badge.general { background: rgba(88,166,255,0.1); color: #58a6ff; }
+    .news-content { flex: 1; min-width: 0; }
+    .news-content h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text); }
+    .news-content h3 a { color: var(--text); text-decoration: none; }
+    .news-content h3 a:hover { color: var(--accent); }
+    .news-content .desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
+    .news-content .meta { font-size: 11px; color: var(--text-dim); margin-top: 6px; display: flex; gap: 12px; }
+    .news-item .read-link { flex-shrink: 0; }
+    .news-item .read-link a { color: var(--text-dim); font-size: 12px; transition: color 120ms; }
+    .news-item .read-link a:hover { color: var(--accent); }
+    .refresh-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .refresh-bar .info { font-size: 12px; color: var(--text-dim); }
+    .btn-refresh { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-family: var(--font); transition: all 120ms; display: flex; align-items: center; gap: 6px; }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+    .loading-news { text-align: center; padding: 40px; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+  <div class="news-page">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span style="color:var(--border);">/</span>
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:600;">RAZE KB</a>
+      <span style="color:var(--border);">/</span>
+      <span style="color:var(--accent);font-size:13px;">News & Leaks</span>
+      <div style="margin-left:auto;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <div class="news-header">
+      <h1><i class="fas fa-newspaper"></i> Cybersecurity News & Data Leaks</h1>
+      <p>Aggregated from Hacker News, Reddit, and cybersecurity feeds — updated live</p>
+    </div>
+
+    <div class="refresh-bar">
+      <button onclick="refreshNews()" class="btn-refresh" id="refreshBtn">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+      <span class="info" id="newsInfo">Loading latest news...</span>
+    </div>
+
+    <div class="news-filters">
+      <button class="active" data-cat="all" onclick="filterNews('all')">All</button>
+      <button data-cat="breach" onclick="filterNews('breach')"><i class="fas fa-skull"></i> Breaches</button>
+      <button data-cat="vulnerability" onclick="filterNews('vulnerability')"><i class="fas fa-bug"></i> Vulnerabilities</button>
+      <button data-cat="general" onclick="filterNews('general')"><i class="fas fa-globe"></i> General</button>
+    </div>
+
+    <div id="newsList">
+      <div class="loading-news"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:8px;">Fetching latest news...</p></div>
+    </div>
+  </div>
+
+  <script>
+    let allNews = []
+    let currentFilter = 'all'
+
+    function getSourceClass(source) {
+      const s = (source || '').toLowerCase()
+      if (s.includes('hacker')) return 'hn'
+      if (s.includes('reddit')) return 'reddit'
+      if (s.includes('breach') || s.includes('leak')) return 'breach'
+      if (s.includes('cve') || s.includes('vuln')) return 'vuln'
+      return 'general'
+    }
+
+    function getCategoryClass(cat) {
+      const c = (cat || 'general').toLowerCase()
+      if (c === 'breach') return 'breach'
+      if (c === 'vulnerability') return 'vuln'
+      return 'general'
+    }
+
+    async function loadNews() {
+      document.getElementById('newsList').innerHTML = '<div class="loading-news"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:8px;">Fetching latest news...</p></div>'
+      document.getElementById('newsInfo').textContent = 'Fetching from sources...'
+
+      try {
+        // Try fetching from Supabase cache first
+        let news = []
+        const sbUrl = localStorage.getItem('supabase_url')
+        const sbKey = localStorage.getItem('supabase_key')
+
+        if (sbUrl && sbKey && sbUrl !== 'https://YOUR-PROJECT.supabase.co') {
+          const sb = supabase.createClient(sbUrl, sbKey)
+          const { data: cached } = await sb.from('news_cache').select('*').order('published_at', { ascending: false }).limit(50)
+          if (cached && cached.length > 0) {
+            news = cached
+          }
+        }
+
+        // If no cached news, fetch directly from APIs via anon
+        if (news.length === 0) {
+          news = await fetchNewsDirect()
+        }
+
+        allNews = news
+        document.getElementById('newsInfo').textContent = `${news.length} articles loaded`
+        renderNews(news)
+      } catch (err) {
+        document.getElementById('newsList').innerHTML = `
+          <div style="text-align:center;padding:40px;color:var(--text-dim);">
+            <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:12px;color:var(--accent);"></i>
+            <p>Failed to load news. Trying direct sources...</p>
+          </div>
+        `
+        // Fallback: fetch directly
+        try {
+          const news = await fetchNewsDirect()
+          allNews = news
+          renderNews(news)
+          document.getElementById('newsInfo').textContent = `${news.length} articles loaded`
+        } catch {
+          document.getElementById('newsList').innerHTML = `
+            <div style="text-align:center;padding:40px;color:var(--text-dim);">
+              <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:12px;"></i>
+              <p>Unable to fetch news at this time. Try again later.</p>
+            </div>
+          `
+          document.getElementById('newsInfo').textContent = 'Failed to load'
+        }
+      }
+    }
+
+    async function fetchNewsDirect() {
+      const sources = [
+        'https://hacker-news.firebaseio.com/v0/topstories.json'
+      ]
+
+      try {
+        // Get top 30 story IDs from HN
+        const idsRes = await fetch(sources[0])
+        const ids = await idsRes.json()
+        const topIds = ids.slice(0, 20)
+
+        // Fetch each story
+        const stories = await Promise.all(
+          topIds.slice(0, 15).map(async id => {
+            try {
+              const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+              const data = await res.json()
+              return data
+            } catch { return null }
+          })
+        )
+
+        return stories
+          .filter(s => s && s.title && s.url && s.type === 'story')
+          .map(s => ({
+            title: s.title,
+            description: s.title,
+            url: s.url,
+            source: 'Hacker News',
+            category: 'general',
+            published_at: new Date(s.time * 1000).toISOString()
+          }))
+          .slice(0, 20)
+      } catch (err) {
+        console.error('Direct fetch error:', err)
+        return []
+      }
+    }
+
+    async function refreshNews() {
+      const btn = document.getElementById('refreshBtn')
+      btn.disabled = true
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...'
+      await loadNews()
+      btn.disabled = false
+      btn.innerHTML = '<i class="fas fa-sync"></i> Refresh'
+    }
+
+    function renderNews(news) {
+      const list = document.getElementById('newsList')
+      const filtered = currentFilter === 'all'
+        ? news
+        : news.filter(n => n.category === currentFilter || n.category === currentFilter)
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:13px;">No articles found</div>'
+        return
+      }
+
+      list.innerHTML = filtered.map(item => {
+        const date = item.published_at
+          ? new Date(item.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : ''
+        const sourceClass = getSourceClass(item.source)
+        const catClass = getCategoryClass(item.category)
+        const desc = item.description?.slice(0, 200) || ''
+
+        return `
+          <div class="news-item">
+            <span class="source-badge ${sourceClass}">${item.source || 'Unknown'}</span>
+            <div class="news-content">
+              <h3><a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title}</a></h3>
+              ${desc ? `<div class="desc">${desc}${desc.length >= 200 ? '...' : ''}</div>` : ''}
+              <div class="meta">
+                <span class="source-badge ${catClass}" style="padding:1px 6px;font-size:9px;">${item.category || 'general'}</span>
+                ${date ? `<span>${date}</span>` : ''}
+              </div>
+            </div>
+            <div class="read-link">
+              <a href="${item.url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i></a>
+            </div>
+          </div>
+        `
+      }).join('')
+    }
+
+    function filterNews(cat) {
+      currentFilter = cat
+      document.querySelectorAll('.news-filters button').forEach(b => b.classList.remove('active'))
+      document.querySelector(`.news-filters button[data-cat="${cat}"]`).classList.add('active')
+      renderNews(allNews)
+    }
+
+    // Load on start
+    loadNews()
+  </script>
+</body>
+</html>

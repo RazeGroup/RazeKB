@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <!-- Blood Red Background -->
+  <rect width="500" height="500" rx="90" fill="#C80000"/>
+  
+  <g fill="#FFFFFF">
+    <!-- Left vertical bar -->
+    <rect x="55" y="235" width="85" height="195" rx="8"/>
+    
+    <!-- Top arm & diagonal leg of R -->
+    <polygon points="120,50 445,50 445,105 220,330 320,430 220,430 120,330 245,205 155,115 120,115"/>
+    
+    <!-- Bottom right dot -->
+    <circle cx="395" cy="380" r="42"/>
+  </g>
+</svg>

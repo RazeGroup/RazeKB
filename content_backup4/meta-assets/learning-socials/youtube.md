@@ -1,0 +1,66 @@
+# Youtube
+
+> Discover the best YouTube channels, must-watch conference talks, and handpicked videos on information security.
+
+## Channels
+
+- [0xdf](https://www.youtube.com/@0xdf?ref=rayanle.cat)
+- [Assetnote - Surfacing Security Podcast](https://www.youtube.com/@assetnote2016?ref=rayanle.cat)
+- [Bug Bounty Reports Explained](https://www.youtube.com/@BugBountyReportsExplained?ref=rayanle.cat)
+- [Codingo](https://www.youtube.com/@codingo?ref=rayanle.cat)
+- [Critical Thinking - Bug Bounty Podcast](https://www.youtube.com/@criticalthinkingpodcast?ref=rayanle.cat)
+- [Embrace The Red - wunderwuzzi](https://www.youtube.com/@embracethered?ref=rayanle.cat)
+- [GynvaelEN - Podcasts about CTFs, computer security, programming and similar things.](https://www.youtube.com/channel/UCCkVMojdBWS-JtH7TliWkVg?ref=rayanle.cat)
+- [Hackerone](https://www.youtube.com/channel/UCsgzmECky2Q9lQMWzDwMhYw?ref=rayanle.cat)
+- [Hackersploit](https://www.youtube.com/channel/UC0ZTPkdxlAKf-V33tqXwi3Q?ref=rayanle.cat)
+- [Hacksplained - A Beginner Friendly Guide to Hacking](https://www.youtube.com/c/hacksplained?ref=rayanle.cat)
+- [Hak5](https://www.youtube.com/channel/UC3s0BtrBJpwNDaflRSoiieQ?ref=rayanle.cat)
+- [IppSec Channel - Hack The Box Writeups](https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA?ref=rayanle.cat)
+- [Jack Rhysider - Darknet Diaries](https://www.youtube.com/@JackRhysider?ref=rayanle.cat)
+- [John Hammond - Wargames and CTF writeups](https://www.youtube.com/channel/UCVeW9qkBjo3zosnqUbG7CFw?ref=rayanle.cat)
+- [Laluka - OffenSkill - Sharing is Caring](https://www.youtube.com/@TheLaluka?ref=rayanle.cat)
+- [LaurieWired - reverse engineering and research](https://www.youtube.com/@lauriewired?ref=rayanle.cat)
+- [LiveOverflow - Explore weird machines...](https://www.youtube.com/channel/UClcE-kVhqyiHCcjYwcpfj9w?ref=rayanle.cat)
+- [Murmus CTF - Weekly live streamings](https://www.youtube.com/channel/UCUB9vOGEUpw7IKJRoR4PK-A?ref=rayanle.cat)
+- [Nahamsec](https://www.youtube.com/c/Nahamsec?ref=rayanle.cat)
+- [NetworkChuck](https://www.youtube.com/@NetworkChuck?ref=rayanle.cat)
+- [OJ Reeves](https://www.youtube.com/channel/UCz2aqRQWMhJ4wcJq3XneqRg?ref=rayanle.cat)
+- [PwnFunction](https://www.youtube.com/channel/UCW6MNdOsqv2E9AjQkv9we7A?ref=rayanle.cat)
+- [SloppyJoePirates CTF Writeups](https://www.youtube.com/@SloppyJoePirates?ref=rayanle.cat)
+- [stacksmashing / Ghidra Ninja](https://www.youtube.com/channel/UC3S8vxwRfqLBdIhgRlDRVzw?ref=rayanle.cat)
+- [STÖK](https://www.youtube.com/c/STOKfredrik?ref=rayanle.cat)
+- [The Cyber Mentor](https://www.youtube.com/channel/UC0ArlFuFYMpEewyRBzdLHiw?ref=rayanle.cat)
+- [The Hated one](https://www.youtube.com/channel/UCjr2bPAyPV7t35MvcgT3W8Q?ref=rayanle.cat)
+- [Tib3rius - CTF walkthroughs, deep dives, web app hacking, and more!](https://www.youtube.com/@tib3rius?ref=rayanle.cat)
+- [xct hacks](https://www.youtube.com/@xct_de?ref=rayanle.cat)
+
+## Conferences
+
+- [BlackAlps CyberSecurityConference](https://www.youtube.com/@blackalpscybersecurityconf8699?ref=rayanle.cat)
+- [DEFCON Conference](https://www.youtube.com/user/DEFCONConference/videos?ref=rayanle.cat)
+- [DEFCON Paris](https://www.youtube.com/@DEFCONParis?ref=rayanle.cat)
+- [Hack In Paris](https://www.youtube.com/user/hackinparis?ref=rayanle.cat)
+- [Hexacon](https://www.youtube.com/@hexacon4091?ref=rayanle.cat)
+- [INSOMNI'HACK](https://www.youtube.com/@scrtinsomnihack?ref=rayanle.cat)
+- [LeHack / HZV](https://www.youtube.com/user/hzvprod?ref=rayanle.cat)
+- [OffensiveCon](https://www.youtube.com/@OffensiveCon?ref=rayanle.cat)
+- [OrangeCon](https://www.youtube.com/@OrangeCon?ref=rayanle.cat)
+- [Peertube ESNHACK](https://peertube.esnhack.fr/?ref=rayanle.cat)
+- [Recon Conference](https://www.youtube.com/@reconmtl?ref=rayanle.cat)
+- [Recon Village](https://www.youtube.com/@ReconVillage?ref=rayanle.cat)
+- [x33fcon Conference](https://www.youtube.com/c/x33fcon?ref=rayanle.cat)
+
+## Curated Videos
+
+- [BSidesSF 101 The Tales of a Bug Bounty Hunter - Arne Swinnen](https://www.youtube.com/watch?v=dsekKYNLBbc&ref=rayanle.cat)
+- [How to become a hacker - Alisa Esage](https://www.youtube.com/watch?v=9ix3h7NQxFU&pp=ygUWaG93IHRvIGJlY29tZSBhIGhhY2tlcg%3D%3D&ref=rayanle.cat)
+- [Hunting for Top Bounties - Nicolas Grégoire](https://www.youtube.com/watch?v=mQjTgDuLsp4&ref=rayanle.cat)
+- [Security Fest 2016 The Secret life of a Bug Bounty Hunter - Frans Rosén](https://www.youtube.com/watch?v=KDo68Laayh8&ref=rayanle.cat)
+- [The Conscience of a Hacker](https://www.youtube.com/watch?v=0tEnnvZbYek&ref=rayanle.cat)
+- [HACKING GOOGLE Series](https://www.youtube.com/watch?v=aOGFY1R4QQ4&ref=rayanle.cat)
+    - [EP000: Operation Aurora | HACKING GOOGLE](https://youtu.be/przDcQe6n5o?ref=rayanle.cat)
+    - [EP001: Threat Analysis Group | HACKING GOOGLE](https://youtu.be/N7N4EC20-cM?ref=rayanle.cat)
+    - [EP002: Detection and Response | HACKING GOOGLE](https://youtu.be/QZ0cpBocl3c?ref=rayanle.cat)
+    - [EP003: Red Team | HACKING GOOGLE](https://youtu.be/TusQWn2TQxQ?ref=rayanle.cat)
+    - [EP004: Bug Hunters | HACKING GOOGLE](https://youtu.be/IoXiXlCNoXg?ref=rayanle.cat)
+    - [EP005: Project Zero | HACKING GOOGLE](https://youtu.be/My_13FXODdU?ref=rayanle.cat)

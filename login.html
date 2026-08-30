@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 20px; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px; width: 100%; max-width: 400px; }
+    .auth-card h1 { font-size: 20px; text-align: center; margin-bottom: 8px; color: var(--text); }
+    .auth-card p { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
+    .auth-card .logo { text-align: center; margin-bottom: 16px; }
+    .auth-card .logo img { width: 48px; height: 48px; border-radius: 10px; box-shadow: 0 0 20px rgba(200,0,0,0.4); }
+    .auth-card .input-group { margin-bottom: 16px; }
+    .auth-card .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+    .auth-card .input-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 14px; font-family: var(--font); padding: 10px 12px; outline: none; transition: border-color 120ms; }
+    .auth-card .input-group input:focus { border-color: var(--accent); }
+    .auth-card .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 120ms; font-family: var(--font); }
+    .auth-card .btn-submit:hover { background: var(--accent-hover); }
+    .auth-card .error-msg { background: rgba(200,0,0,0.1); border: 1px solid rgba(200,0,0,0.3); color: #ff5555; padding: 10px; border-radius: var(--radius); margin-bottom: 16px; font-size: 13px; display: none; }
+    .auth-card .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+    .auth-card .auth-footer a { color: var(--accent); text-decoration: none; }
+    .auth-card .auth-footer a:hover { text-decoration: underline; }
+    .auth-card .back-link { display: block; text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-dim); text-decoration: none; }
+    .auth-card .back-link:hover { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="logo"><img src="assets/raze-logo.svg" alt="Raze Logo"></div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to the Raze KB Community</p>
+
+      <div id="errorMsg" class="error-msg"></div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button onclick="handleLogin()" class="btn-submit" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+      <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to site</a>
+    </div>
+  </div>
+
+  <script>
+    function showError(msg) {
+      const el = document.getElementById('errorMsg')
+      el.textContent = msg
+      el.style.display = 'block'
+    }
+
+    function hideError() {
+      document.getElementById('errorMsg').style.display = 'none'
+    }
+
+    // Check if already logged in
+    const session = localStorage.getItem('sb_session')
+    if (session) {
+      window.location.href = '/'
+    }
+
+    async function handleLogin() {
+      hideError()
+      const email = document.getElementById('email').value.trim()
+      const password = document.getElementById('password').value
+      const btn = document.getElementById('loginBtn')
+
+      if (!email || !password) {
+        showError('Please fill in all fields')
+        return
+      }
+
+      btn.disabled = true
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...'
+
+      try {
+        // Initialize Supabase
+        const supabaseUrl = localStorage.getItem('supabase_url') || 'https://YOUR-PROJECT.supabase.co'
+        const supabaseKey = localStorage.getItem('supabase_key') || 'YOUR-ANON-KEY'
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
+        if (error) throw error
+
+        localStorage.setItem('sb_session', JSON.stringify(data.session))
+        localStorage.setItem('supabase_url', supabaseUrl)
+        localStorage.setItem('supabase_key', supabaseKey)
+
+        const returnTo = new URLSearchParams(window.location.search).get('return') || '/'
+        window.location.href = returnTo
+      } catch (err) {
+        showError(err.message || 'Invalid credentials')
+        btn.disabled = false
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'
+      }
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin()
+    })
+  </script>
+</body>
+</html>

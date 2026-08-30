@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .post-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; }
+    .post-card h1 { font-size: 24px; color: var(--text); margin: 0 0 8px; line-height: 1.3; }
+    .post-card .meta { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+    .post-card .meta a { color: var(--accent); text-decoration: none; }
+    .post-card .meta a:hover { text-decoration: underline; }
+    .post-card .body { line-height: 1.75; font-size: 14px; color: var(--text); }
+    .post-card .body pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; overflow-x: auto; margin: 16px 0; }
+    .post-card .body pre code { background: none; padding: 0; font-size: 13px; }
+    .post-card .body code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 12px; color: var(--accent); font-family: var(--font-mono); }
+    .post-card .body img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 16px 0; }
+    .post-card .body blockquote { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 16px 0; background: rgba(200,0,0,0.08); border-radius: 0 var(--radius) var(--radius) 0; color: var(--text-muted); }
+    .post-card .body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .post-card .body th, .post-card .body td { padding: 8px 12px; border: 1px solid var(--border); text-align: left; }
+    .post-card .body th { background: var(--surface-2); font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--text-muted); }
+    .post-card .body h1, .post-card .body h2, .post-card .body h3 { color: var(--text); margin-top: 28px; }
+    .post-card .body h2 { border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .post-actions { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+    .post-actions button { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-family: var(--font); transition: all 120ms; display: flex; align-items: center; gap: 6px; }
+    .post-actions button:hover { border-color: var(--accent); color: var(--accent); }
+    .post-actions .vote-up.active { border-color: var(--accent); color: var(--accent); background: rgba(200,0,0,0.12); }
+    .post-actions .vote-down.active { border-color: var(--accent); color: var(--accent); background: rgba(200,0,0,0.12); }
+    .post-actions .btn-report { color: var(--text-dim); }
+    .post-actions .btn-report:hover { border-color: var(--accent); color: var(--accent); }
+    .post-tags { display: flex; gap: 4px; margin: 12px 0; flex-wrap: wrap; }
+    .post-tags span { background: rgba(200,0,0,0.12); color: var(--accent); padding: 3px 10px; border-radius: 10px; font-size: 11px; }
+    .comments-section { margin-top: 32px; }
+    .comments-section h2 { font-size: 16px; color: var(--text); margin: 0 0 16px; }
+    .comment { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 8px; }
+    .comment .meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .comment .meta a { color: var(--accent); text-decoration: none; }
+    .comment .body { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .reply-form { margin-top: 24px; }
+    .reply-form textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font); padding: 12px; outline: none; transition: border-color 120ms; resize: vertical; min-height: 100px; }
+    .reply-form textarea:focus { border-color: var(--accent); }
+    .reply-form button { margin-top: 10px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: background 120ms; }
+    .reply-form button:hover { background: var(--accent-hover); }
+    .reply-form .login-prompt { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+    .reply-form .login-prompt a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="post-page">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span style="color:var(--border);">/</span>
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:600;">RAZE KB</a>
+      <span style="color:var(--border);">/</span>
+      <a href="forum.html" style="color:var(--text-muted);text-decoration:none;font-size:13px;">Forum</a>
+      <span style="color:var(--border);">/</span>
+      <span id="postTitleNav" style="color:var(--accent);font-size:13px;">Post</span>
+      <div style="margin-left:auto;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <div id="postCard" class="post-card">
+      <div style="text-align:center;padding:40px;color:var(--text-dim);">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+        <p style="margin-top:12px;">Loading post...</p>
+      </div>
+    </div>
+
+    <div class="comments-section" id="commentsSection" style="display:none;">
+      <h2><i class="fas fa-comments"></i> <span id="commentCount">0</span> Replies</h2>
+      <div id="commentsList"></div>
+      <div class="reply-form" id="replyForm">
+        <textarea id="replyContent" placeholder="Write your reply... (Markdown supported)"></textarea>
+        <button onclick="submitReply()"><i class="fas fa-reply"></i> Post Reply</button>
+      </div>
+      <div class="reply-form" id="loginPrompt" style="display:none;">
+        <div class="login-prompt"><a href="login.html?return=" id="loginReturn">Sign in</a> to reply</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let supabaseClient = null
+    let postData = null
+
+    function getClient() {
+      if (supabaseClient) return supabaseClient
+      const url = localStorage.getItem('supabase_url') || 'https://YOUR-PROJECT.supabase.co'
+      const key = localStorage.getItem('supabase_key') || 'YOUR-ANON-KEY'
+      supabaseClient = supabase.createClient(url, key)
+      return supabaseClient
+    }
+
+    function getUser() {
+      const session = localStorage.getItem('sb_session')
+      if (!session) return null
+      try { return JSON.parse(session).user } catch { return null }
+    }
+
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+      highlight: function(code, lang) {
+        const language = hljs.getLanguage(lang) ? lang : 'plaintext'
+        return hljs.highlight(code, { language }).value
+      }
+    })
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const postId = urlParams.get('id')
+    document.getElementById('loginReturn').href = `login.html?return=post.html?id=${postId}`
+
+    async function loadPost() {
+      if (!postId) {
+        document.getElementById('postCard').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);">Post not found</div>'
+        return
+      }
+
+      const sb = getClient()
+      const { data, error } = await sb.from('forum_posts')
+        .select('*, profiles(username, reputation, role)')
+        .eq('id', postId)
+        .single()
+
+      if (error || !data) {
+        document.getElementById('postCard').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);">Post not found</div>'
+        return
+      }
+
+      postData = data
+      document.getElementById('postTitleNav').textContent = data.title.slice(0, 40)
+
+      // Increment views
+      await sb.from('forum_posts').update({ views: (data.views || 0) + 1 }).eq('id', postId)
+
+      const date = new Date(data.created_at).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })
+
+      const contentHtml = marked.parse(data.content)
+
+      let tagsHtml = ''
+      if (data.tags?.length > 0) {
+        tagsHtml = `<div class="post-tags">${data.tags.map(t => `<span>#${t}</span>`).join('')}</div>`
+      }
+
+      const user = getUser()
+      let voteBtnClass = ''
+      if (user) {
+        const { data: vote } = await sb.from('votes').select('value').eq('post_id', postId).eq('user_id', user.id).single()
+        if (vote?.value === 1) voteBtnClass = 'active'
+      }
+
+      document.getElementById('postCard').innerHTML = `
+        <h1>${data.title}</h1>
+        <div class="meta">
+          by <a href="profile.html?id=${data.author_id}">${data.profiles?.username || 'unknown'}</a>
+          · ${date}
+          · ${data.views || 0} views
+          · ${data.profiles?.reputation || 0} rep
+        </div>
+        ${tagsHtml}
+        <div class="body">${contentHtml}</div>
+        <div class="post-actions">
+          <button class="vote-up ${user ? 'active' : ''}" onclick="handleVote(1)">
+            <i class="fas fa-arrow-up"></i> <span id="voteCount">0</span>
+          </button>
+          <button class="vote-down" onclick="handleVote(-1)"><i class="fas fa-arrow-down"></i></button>
+          ${user ? `<button class="btn-report" onclick="handleReport()"><i class="fas fa-flag"></i> Report</button>` : ''}
+        </div>
+      `
+
+      // Load vote count
+      loadVoteCount()
+      loadComments()
+      document.getElementById('commentsSection').style.display = 'block'
+    }
+
+    async function loadVoteCount() {
+      const sb = getClient()
+      const { data: votes } = await sb.from('votes').select('value').eq('post_id', postId)
+      const total = votes?.reduce((s, v) => s + v.value, 0) || 0
+      document.getElementById('voteCount').textContent = total
+    }
+
+    async function handleVote(value) {
+      const user = getUser()
+      if (!user) { window.location.href = `login.html?return=post.html?id=${postId}`; return }
+
+      const sb = getClient()
+      const { data: existing } = await sb.from('votes').select('value').eq('post_id', postId).eq('user_id', user.id).single()
+
+      if (existing?.value === value) {
+        await sb.from('votes').delete().eq('post_id', postId).eq('user_id', user.id)
+      } else {
+        await sb.from('votes').upsert({ post_id: parseInt(postId), user_id: user.id, value }, { onConflict: 'user_id,post_id' })
+      }
+
+      loadVoteCount()
+    }
+
+    async function handleReport() {
+      const user = getUser()
+      if (!user) { window.location.href = `login.html?return=post.html?id=${postId}`; return }
+      const reason = prompt('Reason for reporting this post:')
+      if (!reason) return
+      try {
+        const sb = getClient()
+        await sb.from('reports').insert({ post_id: parseInt(postId), reporter_id: user.id, reason })
+        alert('Report submitted. An admin will review it.')
+      } catch { alert('Failed to submit report') }
+    }
+
+    async function loadComments() {
+      const sb = getClient()
+      const { data: comments } = await sb.from('forum_comments')
+        .select('*, profiles(username, reputation)')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true })
+
+      const list = document.getElementById('commentsList')
+      document.getElementById('commentCount').textContent = comments?.length || 0
+
+      if (!comments || comments.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px;">No replies yet. Start the discussion!</div>'
+        return
+      }
+
+      list.innerHTML = comments.map(c => {
+        const d = new Date(c.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+        return `
+          <div class="comment">
+            <div class="meta">
+              <a href="profile.html?id=${c.author_id}">${c.profiles?.username || 'unknown'}</a>
+              · ${d}
+            </div>
+            <div class="body">${c.content}</div>
+          </div>
+        `
+      }).join('')
+    }
+
+    async function submitReply() {
+      const user = getUser()
+      if (!user) { window.location.href = `login.html?return=post.html?id=${postId}`; return }
+
+      const content = document.getElementById('replyContent').value.trim()
+      if (!content) return
+
+      try {
+        const sb = getClient()
+        await sb.from('forum_comments').insert({ post_id: parseInt(postId), author_id: user.id, content })
+        document.getElementById('replyContent').value = ''
+        loadComments()
+      } catch (err) {
+        alert('Failed to post reply: ' + err.message)
+      }
+    }
+
+    // Show/hide reply form
+    const user = getUser()
+    if (!user) {
+      document.getElementById('replyForm').style.display = 'none'
+      document.getElementById('loginPrompt').style.display = 'block'
+    }
+
+    loadPost()
+  </script>
+</body>
+</html>

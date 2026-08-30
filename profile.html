@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .profile-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    .profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(200,0,0,0.12); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 2rem; font-weight: 700; flex-shrink: 0; }
+    .profile-info { flex: 1; min-width: 200px; }
+    .profile-info h1 { margin: 0 0 4px; font-size: 22px; color: var(--text); }
+    .profile-info .role { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .profile-info .role.member { background: rgba(63,185,80,0.1); color: #3fb950; }
+    .profile-info .role.editor { background: rgba(88,166,255,0.1); color: #58a6ff; }
+    .profile-info .role.admin { background: rgba(200,0,0,0.12); color: var(--accent); }
+    .profile-info .bio { color: var(--text-muted); font-size: 13px; margin-top: 8px; line-height: 1.6; }
+    .profile-stats { display: flex; gap: 24px; margin-top: 16px; }
+    .profile-stats .stat { text-align: center; }
+    .profile-stats .stat .num { font-size: 18px; font-weight: 700; color: var(--text); }
+    .profile-stats .stat .label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
+    .profile-details { margin-top: 24px; display: flex; gap: 20px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+    .profile-details i { margin-right: 6px; width: 16px; color: var(--text-dim); }
+    .profile-edit { margin-top: 20px; }
+    .profile-edit input, .profile-edit textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font); padding: 8px 10px; outline: none; margin-bottom: 10px; transition: border-color 120ms; }
+    .profile-edit input:focus, .profile-edit textarea:focus { border-color: var(--accent); }
+    .profile-edit textarea { resize: vertical; min-height: 80px; }
+    .profile-edit button { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+    .profile-edit button:hover { background: var(--accent-hover); }
+    .profile-edit .edit-toggle { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-family: var(--font); margin-bottom: 16px; }
+    .profile-edit .edit-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .profile-posts { margin-top: 32px; }
+    .profile-posts h2 { font-size: 16px; color: var(--text); margin-bottom: 16px; }
+    .profile-posts .empty { text-align: center; padding: 32px; color: var(--text-dim); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="profile-page">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span style="color:var(--border);">/</span>
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:600;">RAZE KB</a>
+      <span style="color:var(--border);">/</span>
+      <span id="profileNav" style="color:var(--accent);font-size:13px;">Profile</span>
+      <div style="margin-left:auto;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <div id="profileContent" style="text-align:center;padding:60px;color:var(--text-dim);">
+      <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+      <p>Loading profile...</p>
+    </div>
+  </div>
+
+  <script>
+    let supabaseClient = null
+    let profileData = null
+
+    function getClient() {
+      if (supabaseClient) return supabaseClient
+      const url = localStorage.getItem('supabase_url') || 'https://YOUR-PROJECT.supabase.co'
+      const key = localStorage.getItem('supabase_key') || 'YOUR-ANON-KEY'
+      supabaseClient = supabase.createClient(url, key)
+      return supabaseClient
+    }
+
+    function getUser() {
+      const session = localStorage.getItem('sb_session')
+      if (!session) return null
+      try { return JSON.parse(session).user } catch { return null }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const profileId = urlParams.get('id')
+    const currentUser = getUser()
+
+    async function loadProfile() {
+      if (!profileId) {
+        document.getElementById('profileContent').innerHTML = '<div style="color:var(--text-dim);">No user specified</div>'
+        return
+      }
+
+      const sb = getClient()
+
+      // Get profile
+      const { data: profile } = await sb.from('profiles').select('*').eq('id', profileId).single()
+      if (!profile) {
+        document.getElementById('profileContent').innerHTML = '<div style="color:var(--text-dim);">User not found</div>'
+        return
+      }
+
+      profileData = profile
+      document.getElementById('profileNav').textContent = profile.username
+
+      // Get user's posts
+      const { data: posts } = await sb.from('forum_posts')
+        .select('id, title, created_at, views, votes:votes(count), forum_comments(count)')
+        .eq('author_id', profileId)
+        .order('created_at', { ascending: false })
+
+      const roleClass = profile.role || 'member'
+      const date = new Date(profile.created_at).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })
+      const initial = (profile.username || '?').charAt(0).toUpperCase()
+      const totalVotes = posts?.reduce((s, p) => s + (p.votes?.length || 0), 0) || 0
+      const totalComments = posts?.reduce((s, p) => s + (p.forum_comments?.length || 0), 0) || 0
+
+      let postsHtml = ''
+      if (posts && posts.length > 0) {
+        postsHtml = posts.map(p => {
+          const d = new Date(p.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          return `
+            <div class="post-item" onclick="window.location.href='post.html?id=${p.id}'" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:6px;cursor:pointer;transition:all 120ms;">
+              <div style="font-size:13px;color:var(--text);margin-bottom:4px;">${p.title}</div>
+              <div style="font-size:11px;color:var(--text-dim);">${d} · ${p.views || 0} views</div>
+            </div>
+          `
+        }).join('')
+      } else {
+        postsHtml = '<div class="empty">No posts yet</div>'
+      }
+
+      const isOwnProfile = currentUser && currentUser.id === profileId
+
+      document.getElementById('profileContent').innerHTML = `
+        <div class="profile-card">
+          <div class="profile-avatar">${initial}</div>
+          <div class="profile-info">
+            <h1>${profile.username}</h1>
+            <span class="role ${roleClass}">${roleClass}</span>
+            <div class="bio">${profile.bio || 'No bio yet.'}</div>
+            <div class="profile-stats">
+              <div class="stat"><div class="num">${posts?.length || 0}</div><div class="label">Posts</div></div>
+              <div class="stat"><div class="num">${profile.reputation || 0}</div><div class="label">Reputation</div></div>
+            </div>
+            <div class="profile-details">
+              <span><i class="fas fa-calendar"></i>Member since ${date}</span>
+              ${profile.github ? `<span><i class="fab fa-github"></i><a href="https://github.com/${profile.github}" target="_blank" style="color:var(--accent);text-decoration:none;">${profile.github}</a></span>` : ''}
+              ${profile.website ? `<span><i class="fas fa-globe"></i><a href="${profile.website}" target="_blank" style="color:var(--accent);text-decoration:none;">Website</a></span>` : ''}
+            </div>
+            ${isOwnProfile ? `
+              <div class="profile-edit">
+                <button class="edit-toggle" onclick="toggleEdit()"><i class="fas fa-edit"></i> Edit Profile</button>
+                <div id="editForm" style="display:none;">
+                  <input type="text" id="editBio" placeholder="Bio" value="${profile.bio || ''}">
+                  <input type="text" id="editGithub" placeholder="GitHub username" value="${profile.github || ''}">
+                  <input type="text" id="editWebsite" placeholder="Website URL" value="${profile.website || ''}">
+                  <button onclick="saveProfile()"><i class="fas fa-save"></i> Save</button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        <div class="profile-posts">
+          <h2><i class="fas fa-file-alt"></i> Posts (${posts?.length || 0})</h2>
+          ${postsHtml}
+        </div>
+      `
+    }
+
+    function toggleEdit() {
+      const form = document.getElementById('editForm')
+      form.style.display = form.style.display === 'none' ? 'block' : 'none'
+    }
+
+    async function saveProfile() {
+      const sb = getClient()
+      const bio = document.getElementById('editBio').value.trim()
+      const github = document.getElementById('editGithub').value.trim()
+      const website = document.getElementById('editWebsite').value.trim()
+
+      await sb.from('profiles').update({ bio, github, website }).eq('id', profileId)
+      loadProfile()
+    }
+
+    loadProfile()
+  </script>
+</body>
+</html>

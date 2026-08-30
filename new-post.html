@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Post — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .new-post-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    .new-post-page h1 { font-size: 22px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .new-post-page h1 i { color: var(--accent); }
+    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 20px; }
+    .form-card .input-group { margin-bottom: 20px; }
+    .form-card .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-card .input-group input,
+    .form-card .input-group textarea,
+    .form-card .input-group select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 14px; font-family: var(--font); padding: 10px 12px; outline: none; transition: border-color 120ms; }
+    .form-card .input-group input:focus,
+    .form-card .input-group textarea:focus { border-color: var(--accent); }
+    .form-card .input-group textarea { resize: vertical; min-height: 200px; line-height: 1.6; }
+    .form-card .input-group .hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+    .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 20px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-family: var(--font); transition: all 120ms; text-decoration: none; }
+    .btn-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+    .btn-primary { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font); transition: background 120ms; display: flex; align-items: center; gap: 6px; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg { background: rgba(200,0,0,0.1); border: 1px solid rgba(200,0,0,0.3); color: #ff5555; padding: 12px; border-radius: var(--radius); margin-bottom: 20px; font-size: 13px; display: none; }
+    .forum-nav { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+    .forum-nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 120ms; }
+    .forum-nav a:hover { color: var(--accent); }
+    .forum-nav .sep { color: var(--border); }
+  </style>
+</head>
+<body>
+  <div class="new-post-page">
+    <div class="forum-nav">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span class="sep">/</span>
+      <a href="index.html" style="color: var(--text); font-weight:600;">RAZE KB</a>
+      <span class="sep">/</span>
+      <a href="forum.html">Forum</a>
+      <span class="sep">/</span>
+      <span style="color: var(--accent);">New Post</span>
+      <div style="margin-left:auto;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <h1><i class="fas fa-feather-alt"></i> Create New Post</h1>
+
+    <div id="errorMsg" class="error-msg"></div>
+
+    <div class="form-card">
+      <div class="input-group">
+        <label>Title</label>
+        <input type="text" id="postTitle" placeholder="e.g., Bypassing AV with Custom Shellcode">
+      </div>
+
+      <div class="input-group">
+        <label>Content <span style="color: var(--text-dim); font-weight: 400; text-transform: none;">(Markdown supported)</span></label>
+        <textarea id="postContent" placeholder="Write your post content here... Use markdown for formatting."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>Tags</label>
+        <input type="text" id="postTags" placeholder="e.g., bypass, av, shellcode, windows">
+        <div class="hint">Comma-separated tags</div>
+      </div>
+
+      <div class="form-actions">
+        <a href="forum.html" class="btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+        <button onclick="submitPost()" class="btn-primary" id="submitBtn">
+          <i class="fas fa-paper-plane"></i> Publish Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getClient() {
+      const url = localStorage.getItem('supabase_url') || 'https://YOUR-PROJECT.supabase.co'
+      const key = localStorage.getItem('supabase_key') || 'YOUR-ANON-KEY'
+      return supabase.createClient(url, key)
+    }
+
+    function getUser() {
+      const session = localStorage.getItem('sb_session')
+      if (!session) return null
+      try {
+        const parsed = JSON.parse(session)
+        return parsed.user
+      } catch { return null }
+    }
+
+    // Redirect if not logged in
+    const user = getUser()
+    if (!user) {
+      window.location.href = 'login.html?return=new-post.html'
+    }
+
+    async function submitPost() {
+      const title = document.getElementById('postTitle').value.trim()
+      const content = document.getElementById('postContent').value.trim()
+      const tags = document.getElementById('postTags').value.trim()
+      const btn = document.getElementById('submitBtn')
+      const errorEl = document.getElementById('errorMsg')
+
+      errorEl.style.display = 'none'
+
+      if (!title) { errorEl.textContent = 'Title is required'; errorEl.style.display = 'block'; return }
+      if (!content) { errorEl.textContent = 'Content is required'; errorEl.style.display = 'block'; return }
+
+      btn.disabled = true
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...'
+
+      try {
+        const sb = getClient()
+        const user = getUser()
+        const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean)
+
+        const { data, error } = await sb.from('forum_posts').insert({
+          title, content, author_id: user.id, tags: tagArray
+        }).select().single()
+
+        if (error) throw error
+
+        window.location.href = `post.html?id=${data.id}`
+      } catch (err) {
+        errorEl.textContent = err.message || 'Failed to publish post'
+        errorEl.style.display = 'block'
+        btn.disabled = false
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Post'
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum — Raze KB Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <style>
+    .forum-page { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    .forum-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .forum-header h1 { font-size: 22px; font-weight: 700; color: var(--text); margin: 0; }
+    .forum-header h1 i { color: var(--accent); margin-right: 8px; }
+    .forum-filters { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+    .forum-filters button { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-family: var(--font); transition: all 120ms; }
+    .forum-filters button.active, .forum-filters button:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,0,0,0.12); }
+    .forum-search { margin-bottom: 20px; }
+    .forum-search input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: var(--font); padding: 10px 14px; outline: none; transition: border-color 120ms; }
+    .forum-search input:focus { border-color: var(--accent); }
+    .post-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 8px; cursor: pointer; transition: all 120ms; display: flex; gap: 16px; align-items: flex-start; }
+    .post-item:hover { border-color: var(--accent); background: var(--surface-2); }
+    .post-votes { text-align: center; min-width: 50px; flex-shrink: 0; }
+    .post-votes .count { font-size: 16px; font-weight: 700; color: var(--text); }
+    .post-votes .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+    .post-content { flex: 1; min-width: 0; }
+    .post-content h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--text); }
+    .post-content .meta { font-size: 12px; color: var(--text-muted); }
+    .post-content .meta a { color: var(--accent); text-decoration: none; }
+    .post-content .meta a:hover { text-decoration: underline; }
+    .post-stats { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-dim); }
+    .post-stats i { margin-right: 4px; }
+    .post-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .post-tags span { background: rgba(200,0,0,0.12); color: var(--accent); padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+    .btn-new-post { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 120ms; font-family: var(--font); display: flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-new-post:hover { background: var(--accent-hover); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 3rem; margin-bottom: 16px; color: var(--text-dim); }
+    .empty-state h3 { color: var(--text); margin: 0 0 8px; }
+    .empty-state p { font-size: 13px; margin: 0; }
+    .loading { text-align: center; padding: 40px; color: var(--text-dim); }
+    .loading i { font-size: 1.5rem; }
+    .forum-nav { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+    .forum-nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 120ms; }
+    .forum-nav a:hover { color: var(--accent); }
+    .forum-nav .sep { color: var(--border); }
+  </style>
+</head>
+<body>
+  <div class="forum-page">
+    <!-- Navigation -->
+    <div class="forum-nav">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span class="sep">/</span>
+      <a href="index.html" style="color: var(--text); font-weight:600;">RAZE KB</a>
+      <span class="sep">/</span>
+      <span style="color: var(--accent);">Forum</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="forum-header">
+      <div>
+        <h1><i class="fas fa-comments"></i> Community Forum</h1>
+        <p style="margin: 4px 0 0; color: var(--text-muted); font-size: 13px;">
+          Discuss techniques, share knowledge, ask questions
+        </p>
+      </div>
+      <a href="new-post.html" class="btn-new-post">
+        <i class="fas fa-plus"></i> New Post
+      </a>
+    </div>
+
+    <!-- Search -->
+    <div class="forum-search">
+      <input type="text" id="searchInput" placeholder="Search posts..." oninput="searchPosts(this.value)">
+    </div>
+
+    <!-- Filters -->
+    <div class="forum-filters">
+      <button class="active" data-sort="latest" onclick="setSort('latest')">Latest</button>
+      <button data-sort="popular" onclick="setSort('popular')">Most Popular</button>
+    </div>
+
+    <!-- Post List -->
+    <div id="postList"></div>
+
+    <!-- Load More -->
+    <div id="loadMoreContainer" style="text-align: center; margin-top: 20px; display: none;">
+      <button onclick="loadMore()" class="btn-new-post" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted);">
+        <i class="fas fa-chevron-down"></i> Load More
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ===== MOCK DATABASE SYSTEM (NO SUPABASE NEEDED) =====
+    const MOCK_DATA = {
+      profiles: [
+        { id: '1', username: 'root', reputation: 9999, role: 'admin' },
+        { id: '2', username: 'guest', reputation: 15, role: 'member' }
+      ],
+      posts: [
+        { id: 1, title: 'Welcome to Raze KB Community', content: 'Introduce yourself and share your interests in cybersecurity.', author_id: '1', forum_slug: 'general', tags: ['welcome', 'introduction'], views: 245, votes: [1,1,1,-1], comments: [{author:'guest', text:'Glad to be here!'}], created_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: 2, title: 'Best OSINT Tools in 2026', content: 'A curated list of open source intelligence tools for penetration testing and reconnaissance.', author_id: '2', forum_slug: 'tools', tags: ['osint', 'tools', 'recon'], views: 189, votes: [1,1,1,1], comments: [{author:'root', text:'Great list! Check out SpiderFoot too.'}], created_at: new Date(Date.now() - 172800000).toISOString() },
+        { id: 3, title: 'Active Directory Enumeration Guide', content: 'Step by step guide for enumerating AD environments using built-in tools and BloodHound.', author_id: '1', forum_slug: 'tutorials', tags: ['active-directory', 'bloodhound', 'windows'], views: 320, votes: [1,1,1,1,1], comments: [{author:'guest', text:'Very helpful, thanks!'}], created_at: new Date(Date.now() - 259200000).toISOString() }
+      ]
+    }
+
+    let currentSort = 'latest'
+    let currentPage = 0
+    const PAGE_SIZE = 20
+
+    function mockQuery(filters = {}) {
+      let results = [...MOCK_DATA.posts]
+      if (filters.search) {
+        const s = filters.search.toLowerCase()
+        results = results.filter(p => p.title.toLowerCase().includes(s) || p.content.toLowerCase().includes(s))
+      }
+      if (currentSort === 'popular') results.sort((a,b) => b.views - a.views)
+      else results.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+      const total = results.length
+      const from = (filters.page || 0) * PAGE_SIZE
+      results = results.slice(from, from + PAGE_SIZE)
+      return { data: results.map(p => ({
+        ...p,
+        votes: p.votes ? [{count: p.votes.length}] : [],
+        forum_comments: p.comments || [],
+        profiles: MOCK_DATA.profiles.find(pr => pr.id === p.author_id) || null,
+        voteTotal: p.votes?.reduce((s,v) => s+v, 0) || 0
+      })), count: total }
+    }
+
+    async function loadPosts(reset = true) {
+      if (reset) { currentPage = 0; document.getElementById('postList').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i></div>' }
+      const { data, count } = mockQuery({ search: searchTerm, page: currentPage })
+      totalPosts = count
+      const list = document.getElementById('postList')
+      if (reset) list.innerHTML = ''
+
+      if (!data || data.length === 0) {
+        if (reset) {
+          list.innerHTML = `<div class="empty-state"><i class="fas fa-comment-slash"></i><h3>No posts yet</h3><p>Be the first to start a discussion!</p></div>`
+        }
+        document.getElementById('loadMoreContainer').style.display = 'none'
+        return
+      }
+
+      data.forEach(post => {
+        const date = new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+        const voteCount = post.voteTotal
+        const commentCount = post.forum_comments?.length || 0
+        const div = document.createElement('div')
+        div.className = 'post-item'
+        div.onclick = () => { window.location.href = `post.html?id=${post.id}` }
+        div.innerHTML = `
+          <div class="post-votes">
+            <div class="count">${voteCount}</div>
+            <div class="label">votes</div>
+          </div>
+          <div class="post-content">
+            <h3>${post.title}</h3>
+            <div class="meta">
+              by <a href="profile.html?id=${post.author_id}" onclick="event.stopPropagation()">${post.profiles?.username || 'unknown'}</a>
+              · ${date}
+            </div>
+            <div class="post-stats">
+              <span><i class="fas fa-eye"></i> ${post.views || 0}</span>
+              <span><i class="fas fa-comment"></i> ${commentCount}</span>
+            </div>
+            ${post.tags?.length > 0 ? `<div class="post-tags">${post.tags.map(t => `<span>#${t}</span>`).join('')}</div>` : ''}
+          </div>`
+        list.appendChild(div)
+      })
+
+      document.getElementById('loadMoreContainer').style.display = (currentPage + 1) * PAGE_SIZE < totalPosts ? 'block' : 'none'
+    }
+
+    function loadMore() { currentPage++; loadPosts(false) }
+    function setSort(sort) {
+      currentSort = sort
+      document.querySelectorAll('.forum-filters button').forEach(b => b.classList.remove('active'))
+      document.querySelector(`.forum-filters button[data-sort="${sort}"]`).classList.add('active')
+      loadPosts(true)
+    }
+    function searchPosts(val) { searchTerm = val.trim(); loadPosts(true) }
+
+    let searchTerm = ''
+    let totalPosts = 0
+    loadPosts()
+  </script>
+</body>
+</html>

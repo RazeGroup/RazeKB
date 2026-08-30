@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raze KB | Offensive Security Knowledge Base</title>
+    <meta name="description"
+        content="Curated offensive security cheatsheets, red team techniques, and penetration testing methodology. Developed by Raze Software.">
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Icons & Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- ======== SIDEBAR ======== -->
+        <aside class="sidebar" id="mainSidebar">
+            <div class="sidebar-brand">
+                <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:1;min-width:0;">
+                    <img src="assets/raze-logo.svg" alt="Raze Logo" class="brand-logo-img">
+                    <div class="brand-wrapper">
+                        <span class="site-name">RAZE KB</span>
+                        <span class="brand-badge">by <span>Raze Software</span></span>
+                    </div>
+                </a>
+                <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Close sidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="sidebarSearch" placeholder="Filter categories...">
+            </div>
+            <nav id="categoryList" class="category-nav"></nav>
+            <div class="sidebar-footer">
+                <span>&copy; 2026 Raze</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <a href="raze-software/index.html" target="_blank" class="admin-link" title="Raze Software Company Website"><i class="fas fa-globe"></i></a>
+                    <a href="/community.html" class="admin-link" title="Community"><i class="fas fa-comments"></i></a>
+                    <a href="profile.html?id=me" class="admin-link" title="Profile"><i class="fas fa-user"></i></a>
+                    <a href="/dashboard" class="admin-link" title="Dashboard"><i class="fas fa-user-shield"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ======== MAIN CONTENT ======== -->
+        <main class="content-area">
+
+            <!-- Navbar -->
+            <header class="navbar">
+                <div class="navbar-brand"
+                    style="display: flex; align-items: center; gap: 8px; margin-right: 12px; flex-shrink: 0;">
+                    <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;">
+                        <img src="assets/raze-logo.svg" alt="Raze Logo" class="brand-logo-img">
+                        <span class="site-name">RAZE KB</span>
+                    </a>
+                </div>
+                <!-- Command Palette Trigger -->
+                <button class="cmd-trigger" id="cmdTrigger">
+                    <i class="fas fa-search"></i>
+                    <span id="searchPlaceholderText">Search modules...</span>
+                    <span class="cmd-shortcut">
+                        <kbd>Ctrl</kbd><kbd>K</kbd>
+                    </span>
+                </button>
+                <!-- Hidden input kept for JS search compatibility -->
+                <input type="text" id="globalSearch"
+                    style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;">
+
+                <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="nav-actions" style="display:flex;align-items:center;gap:8px;">
+                    <!-- Company Website Link -->
+                    <a href="raze-software/index.html" target="_blank" class="nav-company-btn" title="Visit Raze Software Main Website">
+                        <i class="fas fa-arrow-up-right-from-square"></i> <span>Raze Software</span>
+                    </a>
+                    <a href="login.html" id="navLoginBtn" class="nav-community-link" style="color:var(--text-muted);text-decoration:none;padding:4px 8px;border-radius:4px;font-size:11px;transition:all 120ms;border:1px solid var(--border);">
+                        <i class="fas fa-sign-in-alt"></i> <span id="navLoginText">Login</span>
+                    </a>
+                    <select id="langSelect" class="lang-selector">
+                        <option value="en">🇺🇸 EN</option>
+                        <option value="ar">🇸🇦 AR</option>
+                        <option value="de">🇩🇪 DE</option>
+                        <option value="ru">🇷🇺 RU</option>
+                        <option value="it">🇮🇹 IT</option>
+                        <option value="zh">🇨🇳 ZH</option>
+                    </select>
+                    <span id="itemCount" style="display: none;">0 modules</span>
+                    <div class="community-links" style="display:flex;gap:4px;align-items:center;">
+                        <a href="/community.html" class="nav-community-link" title="Forum" style="color:var(--text-muted);text-decoration:none;padding:4px 8px;border-radius:4px;font-size:11px;transition:all 120ms;">💬 Forum</a>
+                    </div>
+                    <button id="themeToggle" class="theme-toggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div id="viewWrapper" class="view-wrapper">
+
+                <!-- ======== HOME VIEW ======== -->
+                <div id="homeView" class="home-layout">
+                    <div class="home-header">
+                        <h1 id="homeTitle">Raze <span class="accent">Knowledge Base</span></h1>
+                        <p id="homeSubtitle" class="home-subtitle">
+                            Curated offensive security knowledge base & red team methodology · Developed by <strong>Raze Software</strong>
+                        </p>
+                        <div class="home-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-file-code"></i>
+                                <span id="totalModulesCount">0</span> Modules
+                            </span>
+                            <span class="stat-sep">·</span>
+                            <span class="stat-item">
+                                <i class="fas fa-layer-group"></i> 19 Domains
+                            </span>
+                            <span class="stat-sep">·</span>
+                            <a href="raze-software/index.html" target="_blank" class="stat-link">
+                                <i class="fas fa-globe"></i> Raze Software
+                            </a>
+                            <span class="stat-sep">·</span>
+                            <a href="/community.html" class="stat-link">
+                                <i class="fas fa-comments"></i> Raze Community
+                            </a>
+                        </div>
+                    </div>
+                    <p class="section-title" id="domainsLabel">KNOWLEDGE DOMAINS</p>
+                    <section class="categories-preview" id="categoriesPreview"></section>
+
+                    <p class="section-title" id="summaryLabel"
+                        style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px;">KNOWLEDGE BASE
+                        INDEX</p>
+                    <section class="summary-directory" id="summaryDirectory"></section>
+                </div>
+
+                <!-- ======== GRID VIEW ======== -->
+                <div id="gridView" class="grid-layout hidden">
+                    <div class="view-header">
+                        <div class="breadcrumb" id="gridBreadcrumb"></div>
+                        <h2 id="currentCategoryTitle">All Modules</h2>
+                        <p id="currentCategoryDesc">Exploring all available offensive security cheatsheets.</p>
+                        <div class="view-header-row">
+                            <div class="module-count-tag" id="moduleCountTag">0 Modules</div>
+                            <div class="view-filters">
+                                <button class="filter-btn active" data-sort="name">Name</button>
+                                <button class="filter-btn" data-sort="recent">Recent</button>
+                                <span class="filter-sep"
+                                    style="border-left: 1px solid var(--border); margin: 0 4px; height: 16px;"></span>
+                                <button class="filter-btn" id="layoutToggleBtn" title="Toggle Layout">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="gridCards" class="cards-container"></div>
+                </div>
+
+                <!-- ======== DETAIL VIEW (3-column) ======== -->
+                <div id="detailView" class="detail-layout hidden">
+                    <div class="detail-header">
+                        <button id="closeDetail" class="btn-icon" title="Go back">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="breadcrumb" id="breadcrumb"></div>
+                    </div>
+                    <div class="detail-body">
+                        <div class="prose-wrapper">
+                            <article id="markdownContent" class="prose"></article>
+                        </div>
+                        <aside class="toc-panel">
+                            <div class="toc-title" id="tocTitle">On this page</div>
+                            <nav id="tocNav"></nav>
+                        </aside>
+                    </div>
+                </div>
+
+            </div><!-- /viewWrapper -->
+
+            <!-- Loader -->
+            <div id="loader" class="loader-screen">
+                <div class="cyber-spinner"></div>
+                <p id="loaderText">SYNCHRONIZING DATABASE...</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ======== COMMAND PALETTE ======== -->
+    <div id="cmdPalette" class="cmd-palette hidden">
+        <div class="cmd-backdrop" id="cmdBackdrop"></div>
+        <div class="cmd-palette-inner">
+            <div class="cmd-input-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="cmdInput" placeholder="Search modules, techniques, payloads...">
+                <span class="cmd-esc">ESC</span>
+            </div>
+            <div id="cmdResults" class="cmd-results"></div>
+            <div class="cmd-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                <span><kbd>Enter</kbd> Open</span>
+                <span><kbd>ESC</kbd> Close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Community nav - check login status
+        (function() {
+            const session = localStorage.getItem('sb_session');
+            const loginBtn = document.getElementById('navLoginBtn');
+            const loginText = document.getElementById('navLoginText');
+            if (session && loginBtn) {
+                try {
+                    const user = JSON.parse(session).user;
+                    loginBtn.href = 'profile.html?id=' + user.id;
+                    loginText.textContent = 'Profile';
+                    loginBtn.innerHTML = '<i class="fas fa-user"></i> <span id="navLoginText">Profile</span>';
+                } catch(e) {}
+            }
+            // Community link hover
+            document.querySelectorAll('.nav-community-link').forEach(el => {
+                el.onmouseover = () => el.style.color = 'var(--accent)';
+                el.onmouseout = () => el.style.color = 'var(--text-muted)';
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+# Active Directory - Certificate ESC Attacks
+
+* [ESC1 - Misconfigured Certificate Templates](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc01/?ref=rayanle.cat)
+* [ESC2 - Misconfigured Certificate Templates](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc02/?ref=rayanle.cat)
+* [ESC3 - Misconfigured Enrollment Agent Templates](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc03/?ref=rayanle.cat)
+* [ESC4 - Access Control Vulnerabilities](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc04/?ref=rayanle.cat)
+* [ESC5 - Vulnerable PKI Object Access Control](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc05/?ref=rayanle.cat)
+* [ESC6 - EDITF_ATTRIBUTESUBJECTALTNAME2](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc06/?ref=rayanle.cat)
+* [ESC7 - Vulnerable Certificate Authority Access Control](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc07/?ref=rayanle.cat)
+* [ESC8 - Web Enrollment Relay](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc08/?ref=rayanle.cat)
+* [ESC9 - No Security Extension](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc09/?ref=rayanle.cat)
+* [ESC10 - Weak Certificate Mapping](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc10/?ref=rayanle.cat)
+* [ESC11 - Relaying NTLM to ICPR](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc11/?ref=rayanle.cat)
+* [ESC12 - ADCS CA on YubiHSM](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc12/?ref=rayanle.cat)
+* [ESC13 - Issuance Policy](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc13/?ref=rayanle.cat)
+* [ESC14 - altSecurityIdentities](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc14/?ref=rayanle.cat)
+* [ESC15 - EKUwu Application Policies - CVE-2024-49019](https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-esc15/?ref=rayanle.cat)

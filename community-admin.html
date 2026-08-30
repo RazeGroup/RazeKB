@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Admin — Raze KB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/raze-logo.svg">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    .admin-page { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+    .admin-page h1 { font-size: 22px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .admin-page h1 i { color: var(--accent); }
+    .admin-tabs { display: flex; gap: 4px; margin: 20px 0; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+    .admin-tabs button { background: transparent; border: none; color: var(--text-muted); padding: 10px 16px; cursor: pointer; font-size: 13px; font-family: var(--font); border-bottom: 2px solid transparent; transition: all 120ms; display: flex; align-items: center; gap: 6px; }
+    .admin-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .admin-tabs button:hover { color: var(--text); }
+    .report-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 8px; }
+    .report-item .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .report-item .reason { color: var(--text); font-size: 13px; margin-bottom: 4px; }
+    .report-item .meta { font-size: 11px; color: var(--text-dim); }
+    .report-item .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .report-item .actions button { padding: 4px 12px; border-radius: var(--radius); cursor: pointer; font-size: 11px; font-family: var(--font); border: 1px solid var(--border); background: transparent; color: var(--text-muted); transition: all 120ms; }
+    .report-item .actions .btn-resolve { border-color: rgba(63,185,80,0.3); color: #3fb950; }
+    .report-item .actions .btn-dismiss { border-color: rgba(200,0,0,0.3); color: #ff5555; }
+    .report-item .actions button:hover { background: var(--surface-2); }
+    .empty-state { text-align: center; padding: 60px; color: var(--text-dim); }
+    .user-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; }
+    .user-item .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(200,0,0,0.12); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 12px; font-weight: 700; }
+    .user-item .info { flex: 1; }
+    .user-item .info .name { font-size: 13px; color: var(--text); }
+    .user-item .info .meta { font-size: 11px; color: var(--text-dim); }
+    .user-item .actions select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: var(--radius); font-size: 11px; font-family: var(--font); cursor: pointer; }
+    .loading { text-align: center; padding: 40px; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+  <div class="admin-page">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+      <a href="index.html" style="display:flex;align-items:center;gap:6px;"><img src="assets/raze-logo.svg" style="width:18px;height:18px;border-radius:3px;"></a>
+      <span style="color:var(--border);">/</span>
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:600;">RAZE KB</a>
+      <span style="color:var(--border);">/</span>
+      <span style="color:var(--accent);font-size:13px;">Community Admin</span>
+      <div style="margin-left:auto;">
+        <a href="raze-software/index.html" target="_blank" class="nav-company-btn"><i class="fas fa-globe"></i> Raze Software</a>
+      </div>
+    </div>
+
+    <h1><i class="fas fa-shield-halved"></i> Community Management</h1>
+
+    <div class="admin-tabs">
+      <button class="active" data-tab="reports" onclick="switchTab('reports')">
+        <i class="fas fa-flag"></i> Reports <span id="reportCount" style="font-size:11px;color:var(--accent);"></span>
+      </button>
+      <button data-tab="users" onclick="switchTab('users')">
+        <i class="fas fa-users"></i> Users
+      </button>
+      <button data-tab="posts" onclick="switchTab('posts')">
+        <i class="fas fa-file-alt"></i> Posts
+      </button>
+      <button data-tab="settings" onclick="switchTab('settings')">
+        <i class="fas fa-cog"></i> Settings
+      </button>
+    </div>
+
+    <div id="tab-reports" class="tab-content">
+      <div id="reportsList"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div>
+    </div>
+    <div id="tab-users" class="tab-content" style="display:none;">
+      <div id="usersList"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div>
+    </div>
+    <div id="tab-posts" class="tab-content" style="display:none;">
+      <div id="postsList"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div>
+    </div>
+    <div id="tab-settings" class="tab-content" style="display:none;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;">
+        <h3 style="color:var(--text);margin:0 0 16px;font-size:15px;">Community Settings</h3>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">Site Name</label>
+          <input type="text" id="siteName" class="input-field" value="Raze KB Community" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:8px 10px;width:100%;">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">News Refresh Interval (minutes)</label>
+          <input type="number" id="newsInterval" class="input-field" value="30" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:8px 10px;width:200px;">
+        </div>
+        <button onclick="saveSettings()" class="btn-save" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 20px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font);">
+          <i class="fas fa-save"></i> Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let supabaseClient = null
+    let currentUser = null
+
+    function getClient() {
+      if (supabaseClient) return supabaseClient
+      const url = localStorage.getItem('supabase_url') || 'https://YOUR-PROJECT.supabase.co'
+      const key = localStorage.getItem('supabase_key') || 'YOUR-ANON-KEY'
+      supabaseClient = supabase.createClient(url, key)
+      return supabaseClient
+    }
+
+    function getUser() {
+      const session = localStorage.getItem('sb_session')
+      if (!session) return null
+      try { return JSON.parse(session).user } catch { return null }
+    }
+
+    async function checkAdmin() {
+      const user = getUser()
+      if (!user) { window.location.href = 'login.html?return=community-admin.html'; return }
+
+      const sb = getClient()
+      const { data: profile } = await sb.from('profiles').select('role').eq('id', user.id).single()
+      if (!profile || profile.role !== 'admin') {
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;color:var(--text-dim);font-family:var(--font);"><i class="fas fa-shield-halved" style="font-size:3rem;margin-bottom:16px;color:var(--accent);"></i><h2>Access Denied</h2><p style="margin-top:8px;">You do not have admin privileges.</p><a href="index.html" style="color:var(--accent);">Back to site</a></div>'
+        return false
+      }
+      return true
+    }
+
+    async function loadReports() {
+      if (!(await checkAdmin())) return
+      const sb = getClient()
+      const { data } = await sb.from('reports')
+        .select('*, profiles(username), forum_posts!inner(title), reporter:reporter_id(username)')
+        .order('created_at', { ascending: false })
+
+      const list = document.getElementById('reportsList')
+      document.getElementById('reportCount').textContent = `(${data?.filter(r => r.status === 'pending').length || 0})`
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="font-size:2rem;margin-bottom:12px;color:#3fb950;"></i><p>No reports</p></div>'
+        return
+      }
+
+      list.innerHTML = data.map(r => {
+        const date = new Date(r.created_at).toLocaleDateString()
+        return `
+          <div class="report-item">
+            <div class="header">
+              <span style="font-size:12px;color:var(--text-muted);">
+                Report by <a href="profile.html?id=${r.reporter_id}" style="color:var(--accent);text-decoration:none;">${r.reporter?.username || 'unknown'}</a>
+                · ${date}
+              </span>
+              <span class="status-badge" style="font-size:11px;padding:2px 8px;border-radius:10px;background:${r.status === 'pending' ? 'rgba(248,81,73,0.1)' : r.status === 'resolved' ? 'rgba(63,185,80,0.1)' : 'rgba(139,148,158,0.1)'};color:${r.status === 'pending' ? '#f85149' : r.status === 'resolved' ? '#3fb950' : '#8b949e'};">${r.status || 'pending'}</span>
+            </div>
+            <div class="reason">${r.reason}</div>
+            <div class="meta">Post: <a href="post.html?id=${r.post_id}" style="color:var(--accent);text-decoration:none;">${r.forum_posts?.title?.slice(0, 60) || 'Unknown'}</a></div>
+            ${r.status === 'pending' ? `
+              <div class="actions">
+                <button class="btn-resolve" onclick="resolveReport(${r.id}, 'resolved')"><i class="fas fa-check"></i> Resolve</button>
+                <button class="btn-dismiss" onclick="resolveReport(${r.id}, 'dismissed')"><i class="fas fa-times"></i> Dismiss</button>
+              </div>
+            ` : ''}
+          </div>
+        `
+      }).join('')
+    }
+
+    async function resolveReport(id, status) {
+      const sb = getClient()
+      const user = getUser()
+      await sb.from('reports').update({ status, resolved_by: user.id, resolved_at: new Date().toISOString() }).eq('id', id)
+      loadReports()
+    }
+
+    async function loadUsers() {
+      if (!(await checkAdmin())) return
+      const sb = getClient()
+      const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false })
+
+      const list = document.getElementById('usersList')
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No users</p></div>'
+        return
+      }
+
+      list.innerHTML = data.map(u => {
+        const date = new Date(u.created_at).toLocaleDateString()
+        return `
+          <div class="user-item">
+            <div class="avatar">${(u.username || '?').charAt(0).toUpperCase()}</div>
+            <div class="info">
+              <div class="name"><a href="profile.html?id=${u.id}" style="color:var(--text);text-decoration:none;">${u.username}</a></div>
+              <div class="meta">Joined ${date} · Rep: ${u.reputation || 0}</div>
+            </div>
+            <div class="actions">
+              <select onchange="changeRole('${u.id}', this.value)">
+                <option value="member" ${u.role === 'member' ? 'selected' : ''}>Member</option>
+                <option value="editor" ${u.role === 'editor' ? 'selected' : ''}>Editor</option>
+                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>
+            </div>
+          </div>
+        `
+      }).join('')
+    }
+
+    async function changeRole(userId, role) {
+      const sb = getClient()
+      await sb.from('profiles').update({ role }).eq('id', userId)
+    }
+
+    async function loadPosts() {
+      if (!(await checkAdmin())) return
+      const sb = getClient()
+      const { data } = await sb.from('forum_posts')
+        .select('*, profiles(username)')
+        .order('created_at', { ascending: false })
+
+      const list = document.getElementById('postsList')
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No posts</p></div>'
+        return
+      }
+
+      list.innerHTML = data.map(p => {
+        const date = new Date(p.created_at).toLocaleDateString()
+        return `
+          <div class="post-item" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:6px;cursor:pointer;" onclick="window.location.href='post.html?id=${p.id}'">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:13px;color:var(--text);font-weight:500;">${p.title}</div>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">
+                  by ${p.profiles?.username || 'unknown'} · ${date} · ${p.views || 0} views
+                </div>
+              </div>
+              <button onclick="event.stopPropagation();deletePost(${p.id})" style="background:transparent;border:1px solid rgba(248,81,73,0.3);color:#f85149;padding:4px 10px;border-radius:var(--radius);cursor:pointer;font-size:11px;font-family:var(--font);">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `
+      }).join('')
+    }
+
+    async function deletePost(id) {
+      if (!confirm('Delete this post permanently?')) return
+      const sb = getClient()
+      await sb.from('forum_posts').delete().eq('id', id)
+      loadPosts()
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none')
+      document.querySelectorAll('.admin-tabs button').forEach(b => b.classList.remove('active'))
+      document.getElementById(`tab-${tab}`).style.display = 'block'
+      document.querySelector(`.admin-tabs button[data-tab="${tab}"]`).classList.add('active')
+    }
+
+    async function saveSettings() {
+      const sb = getClient()
+      const siteName = document.getElementById('siteName').value
+      await sb.from('site_settings').upsert({ key: 'site_name', value: { name: siteName } })
+      alert('Settings saved!')
+    }
+
+    // Init
+    checkAdmin().then(isAdmin => {
+      if (isAdmin) {
+        loadReports()
+        loadUsers()
+        loadPosts()
+      }
+    })
+  </script>
+</body>
+</html>

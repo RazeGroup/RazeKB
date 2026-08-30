@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+python-multipart
+# Optional: for even better expert translations
+# deep-translator
